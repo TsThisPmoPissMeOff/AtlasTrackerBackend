@@ -1,12 +1,30 @@
+# Web backend
 fastapi==0.111.1
 uvicorn==0.23.2
+
+# Image handling
 pillow==10.1.0
+
+# OCR & metadata
 pytesseract==0.3.11
 exifread==3.0.0
+
+# Core ML / math
 numpy==1.27.5
-requests==2.34.0
-python-meteostat==1.7.1
-geopy==2.6.0
-pvlib==0.9.1
 torch>=2.0.0
+
+# Visual geolocation
 geoclip>=1.2.0
+
+# Sun / solar position
+pvlib==0.9.1
+pytz==2023.3
+
+# Weather (historical)
+python-meteostat==1.7.1
+
+# Language detection (street signs)
+langdetect==1.0.9
+
+# Landmark detection (CLIP)
+git+https://github.com/openai/CLIP.git
