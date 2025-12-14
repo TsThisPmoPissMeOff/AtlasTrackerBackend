@@ -1,12 +1,12 @@
 fastapi==0.111.1
 uvicorn==0.23.2
 pillow==10.1.0
-tesseract==0.0.3
 pytesseract==0.3.11
 exifread==3.0.0
 numpy==1.27.5
 requests==2.34.0
 python-meteostat==1.7.1
 geopy==2.6.0
+pvlib==0.9.1
 torch>=2.0.0
 geoclip>=1.2.0
