@@ -8,7 +8,7 @@ import io
 # Initialize GeoCLIP model once
 geo_model = GeoCLIPModel()
 
-# Simple torchvision transform compatible with 0.24.1
+# CPU-compatible transform
 image_transform = transforms.Compose([
     transforms.Resize((224, 224)),
     transforms.ToTensor(),
@@ -20,15 +20,11 @@ def fuse_images(images_bytes):
     """
     predictions = []
     for img_bytes in images_bytes:
-        # Convert bytes to PIL Image
         img = Image.open(io.BytesIO(img_bytes)).convert('RGB')
-        img_tensor = image_transform(img).unsqueeze(0)  # Add batch dim
-        
-        # GeoCLIP prediction
+        img_tensor = image_transform(img).unsqueeze(0)
         pred = geo_model.predict(img_tensor)
         predictions.append(pred)
 
-    # Average latitude and longitude predictions
     lats = [p['latitude'] for p in predictions]
     lons = [p['longitude'] for p in predictions]
 
