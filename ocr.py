@@ -1,12 +1,15 @@
-import pytesseract
-from PIL import Image
-import io
+import easyocr
+import cv2
+import numpy as np
+
+# Initialize EasyOCR reader once
+reader = easyocr.Reader(['en'])
 
 def extract_text(image_bytes):
-    """Extract text using Tesseract OCR."""
-    try:
-        image = Image.open(io.BytesIO(image_bytes))
-        text = pytesseract.image_to_string(image)
-        return text.strip()
-    except Exception as e:
-        return f"OCR failed: {e}"
+    """
+    Takes image bytes and returns extracted text using EasyOCR
+    """
+    nparr = np.frombuffer(image_bytes, np.uint8)
+    img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+    result = reader.readtext(img)
+    return " ".join([r[1] for r in result])
