@@ -2,7 +2,7 @@
 fastapi==0.109.0
 uvicorn==0.23.2
 
-# AI / ML libraries (CPU, PyPI only)
+# AI / ML libraries (CPU, PyPI versions)
 torch==2.9.0
 torchvision==0.24.1
 geoclip==0.1.0
