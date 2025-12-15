@@ -1,16 +1,11 @@
-from fastapi import FastAPI, File, UploadFile
+from fastapi import FastAPI, File, UploadFile, Form
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List
+from fusion import fuse_images
+from ocr import extract_text
 
-from fusion import analyze_images
+app = FastAPI(title="AtlasTracker Backend")
 
-app = FastAPI(
-    title="AtlasFinder",
-    description="Image Geolocation Analysis API",
-    version="1.0.0"
-)
-
-# Allow frontend access (Cloudflare Pages, GitHub Pages, etc.)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -18,36 +13,30 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
 @app.post("/analyze")
 async def analyze(
-    file: UploadFile = File(None),
-    files: List[UploadFile] = File(None)
+    files: List[UploadFile] = File(...),
+    refine_lat: float = Form(None),
+    refine_lon: float = Form(None)
 ):
     """
-    Analyze one or more images.
-
-    - file: single image (default)
-    - files: multiple images (optional, enables fusion)
+    Accepts one or multiple images. Optional refine_lat/refine_lon to refine geolocation.
     """
+    images_bytes = [await f.read() for f in files]
 
-    image_bytes_list = []
+    # Multi-image fusion
+    geo_result = fuse_images(images_bytes)
 
-    # Single-image mode
-    if file is not None:
-        image_bytes_list.append(await file.read())
+    # OCR extraction for each image
+    ocr_texts = [extract_text(b) for b in images_bytes]
 
-    # Multi-image mode
-    if files:
-        for f in files:
-            image_bytes_list.append(await f.read())
+    # Apply refinement if provided
+    if refine_lat is not None and refine_lon is not None:
+        geo_result['latitude'] = (geo_result['latitude'] + refine_lat) / 2
+        geo_result['longitude'] = (geo_result['longitude'] + refine_lon) / 2
+        geo_result['confidence'] *= 1.1  # slightly boost confidence
 
-    if not image_bytes_list:
-        return {
-            "candidates": [],
-            "explanation": {
-                "error": "No images provided"
-            }
-        }
-
-    return analyze_images(image_bytes_list)
+    return {
+        "geolocation": geo_result,
+        "ocr_texts": ocr_texts
+    }
