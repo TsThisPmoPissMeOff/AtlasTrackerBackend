@@ -2,9 +2,9 @@
 fastapi==0.109.0
 uvicorn==0.23.2
 
-# AI / ML libraries
-torch==2.1.0+cpu
-torchvision==0.16.1+cpu
+# AI / ML libraries (CPU-compatible versions)
+torch==2.9.1
+torchvision==0.15.2
 geoclip==0.1.0
 clip-anytorch==1.0.2
 
