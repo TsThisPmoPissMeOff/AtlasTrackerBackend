@@ -1,9 +1,16 @@
 from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
-from fusion import analyze_image
+from typing import List
 
-app = FastAPI()
+from fusion import analyze_images
 
+app = FastAPI(
+    title="AtlasFinder",
+    description="Image Geolocation Analysis API",
+    version="1.0.0"
+)
+
+# Allow frontend access (Cloudflare Pages, GitHub Pages, etc.)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -11,12 +18,36 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 @app.post("/analyze")
-async def analyze(file: UploadFile = File(...), bbox: str = None):
+async def analyze(
+    file: UploadFile = File(None),
+    files: List[UploadFile] = File(None)
+):
     """
-    Analyze uploaded image and return geolocation results.
-    Optional bbox: "lat_min,lon_min,lat_max,lon_max" for refinement.
+    Analyze one or more images.
+
+    - file: single image (default)
+    - files: multiple images (optional, enables fusion)
     """
-    image_bytes = await file.read()
-    result = analyze_image(image_bytes, bbox)
-    return result
+
+    image_bytes_list = []
+
+    # Single-image mode
+    if file is not None:
+        image_bytes_list.append(await file.read())
+
+    # Multi-image mode
+    if files:
+        for f in files:
+            image_bytes_list.append(await f.read())
+
+    if not image_bytes_list:
+        return {
+            "candidates": [],
+            "explanation": {
+                "error": "No images provided"
+            }
+        }
+
+    return analyze_images(image_bytes_list)
