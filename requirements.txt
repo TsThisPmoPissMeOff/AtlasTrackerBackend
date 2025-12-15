@@ -5,7 +5,7 @@ uvicorn==0.23.2
 # AI / ML libraries (CPU, PyPI versions)
 torch==2.9.0
 torchvision==0.24.1
-geoclip==0.1.0
+geoclip==1.2.0
 clip-anytorch==1.0.2
 
 # Image processing
